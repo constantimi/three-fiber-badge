@@ -9,7 +9,7 @@ import {
 import { Physics } from '@react-three/rapier';
 import { useControls } from 'leva';
 import { MeshLineGeometry, MeshLineMaterial } from 'meshline';
-import Band from './feature/Band';
+import Band from './feature/Band.jsx';
 
 extend({ MeshLineGeometry, MeshLineMaterial });
 

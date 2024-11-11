@@ -21,7 +21,7 @@ useTexture.preload(
 );
 
 const Band = () => {
-  const band = useRef<THREE.Mesh>(null!);
+  const band = useRef<THREE.Mesh>(null);
   const fixed = useRef();
   const j1 = useRef();
   const j2 = useRef();
@@ -120,14 +120,14 @@ const Band = () => {
           <CuboidCollider args={[0.8, 1.125, 0.01]} />
           <mesh
             onPointerUp={(e) => (
-              (e.target as Element).releasePointerCapture(e.pointerId),
+              e.target.releasePointerCapture(e.pointerId),
               drag(null)
             )}
             onPointerDown={(e) => {
               if (!card.current) return;
 
               return (
-                (e.target as Element).setPointerCapture(e.pointerId),
+                e.target.setPointerCapture(e.pointerId),
                 drag(
                   new THREE.Vector3()
                     .copy(e.point)
