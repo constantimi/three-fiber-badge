@@ -1,7 +1,6 @@
 import * as THREE from 'three';
 import { useRef, useState } from 'react';
 import { extend, useThree, useFrame } from '@react-three/fiber';
-import { useGLTF, useTexture } from '@react-three/drei';
 import {
   BallCollider,
   CuboidCollider,
@@ -11,30 +10,16 @@ import {
 } from '@react-three/rapier';
 import { MeshLineGeometry, MeshLineMaterial } from 'meshline';
 
+// Extend the MeshLineGeometry and MeshLineMaterial to be used in the Canvas
 extend({ MeshLineGeometry, MeshLineMaterial });
 
-useGLTF.preload(
-  'https://assets.vercel.com/image/upload/contentful/image/e5382hct74si/5huRVDzcoDwnbgrKUo1Lzs/53b6dd7d6b4ffcdbd338fa60265949e1/tag.glb'
-);
-useTexture.preload(
-  'https://assets.vercel.com/image/upload/contentful/image/e5382hct74si/SOT1hmCesOHxEYxL7vkoZ/c57b29c85912047c414311723320c16b/band.jpg'
-);
-
-const Band = () => {
-  const band = useRef<THREE.Mesh>(null);
-  const fixed = useRef();
-  const j1 = useRef();
-  const j2 = useRef();
-  const j3 = useRef();
-
-  const card = useRef();
-  const vec = new THREE.Vector3();
-  const ang = new THREE.Vector3();
-  const rot = new THREE.Vector3();
-  const dir = new THREE.Vector3();
+const RawBand = () => {
+  const band = useRef(), fixed = useRef(), j1 = useRef(), j2 = useRef(), j3 = useRef(), card = useRef() // prettier-ignore
+  const vec = new THREE.Vector3(), ang = new THREE.Vector3(), rot = new THREE.Vector3(), dir = new THREE.Vector3() // prettier-ignore
 
   const { width, height } = useThree((state) => state.size);
-  const [curve] = useState<THREE.CatmullRomCurve3>(
+
+  const [curve] = useState(
     () =>
       new THREE.CatmullRomCurve3([
         new THREE.Vector3(),
@@ -43,34 +28,40 @@ const Band = () => {
         new THREE.Vector3(),
       ])
   );
-  const [dragged, drag] = useState<THREE.Vector3 | null>(null);
 
-  useRopeJoint(fixed, j1, [[0, 0, 0], [0, 0, 0], 1]);
-  useRopeJoint(j1, j2, [[0, 0, 0], [0, 0, 0], 1]);
-  useRopeJoint(j2, j3, [[0, 0, 0], [0, 0, 0], 1]);
-  useSphericalJoint(j3, card, [
-    [0, 0, 0],
-    [0, 1.45, 0],
-  ]);
+  const [dragged, drag] = useState(false);
 
-  useFrame((state) => {
+  // Create rope joints between the rigid bodies
+  useRopeJoint(fixed, j1, [[0, 0, 0], [0, 0, 0], 1]) // prettier-ignore
+  useRopeJoint(j1, j2, [[0, 0, 0], [0, 0, 0], 1]) // prettier-ignore
+  useRopeJoint(j2, j3, [[0, 0, 0], [0, 0, 0], 1]) // prettier-ignore
+  useSphericalJoint(j3, card, [[0, 0, 0], [0, 1.45, 0]]) // prettier-ignore
+
+  useFrame((state, delta) => {
     if (dragged) {
+      // Update the card position based on pointer movement
       vec.set(state.pointer.x, state.pointer.y, 0.5).unproject(state.camera);
       dir.copy(vec).sub(state.camera.position).normalize();
       vec.add(dir.multiplyScalar(state.camera.position.length()));
+
       [card, j1, j2, j3, fixed].forEach((ref) => ref.current?.wakeUp());
+
       card.current?.setNextKinematicTranslation({
         x: vec.x - dragged.x,
         y: vec.y - dragged.y,
         z: vec.z - dragged.z,
       });
     }
+
     if (fixed.current) {
+      // Calculate Catmull-Rom curve points
       curve.points[0].copy(j3.current.translation());
       curve.points[1].copy(j2.current.translation());
       curve.points[2].copy(j1.current.translation());
       curve.points[3].copy(fixed.current.translation());
-      band.current?.geometry.setPoints(curve.getPoints(32));
+      band.current.geometry.setPoints(curve.getPoints(32));
+
+      // Tilt the card back towards the screen
       ang.copy(card.current.angvel());
       rot.copy(card.current.rotation());
       card.current.setAngvel({ x: ang.x, y: ang.y - rot.y * 0.25, z: ang.z });
@@ -120,21 +111,16 @@ const Band = () => {
           <CuboidCollider args={[0.8, 1.125, 0.01]} />
           <mesh
             onPointerUp={(e) => (
-              e.target.releasePointerCapture(e.pointerId),
-              drag(null)
+              e.target.releasePointerCapture(e.pointerId), drag(false)
             )}
-            onPointerDown={(e) => {
-              if (!card.current) return;
-
-              return (
-                e.target.setPointerCapture(e.pointerId),
-                drag(
-                  new THREE.Vector3()
-                    .copy(e.point)
-                    .sub(vec.copy(card.current.translation()))
-                )
-              );
-            }}
+            onPointerDown={(e) => (
+              e.target.setPointerCapture(e.pointerId),
+              drag(
+                new THREE.Vector3()
+                  .copy(e.point)
+                  .sub(vec.copy(card.current.translation()))
+              )
+            )}
           >
             <planeGeometry args={[0.8 * 2, 1.125 * 2]} />
             <meshBasicMaterial
@@ -161,4 +147,4 @@ const Band = () => {
   );
 };
 
-export default Band;
+export default RawBand;
