@@ -1,8 +1,40 @@
-import { ThemeConfig } from '../types/three';
-
-export const theme: ThemeConfig = {
-  colors: {
-    accent: '#000000',
-    elevation1: '#ffffff',
-  },
+export const theme = {
+    colors: {
+        elevation1: '#292D39',
+        elevation2: '#181C20',
+        elevation3: '#373C4B',
+        accent1: '#0066DC',
+        accent2: '#007BFF',
+        accent3: '#3C93FF',
+        highlight1: '#535760',
+        highlight2: '#8C92A4',
+        highlight3: '#FEFEFE',
+    },
+    sizes: {
+        rootWidth: '300px',
+        controlWidth: '140px',
+        scrubberHeight: '10px',
+        rowHeight: '30px',
+        scrubberWidth: '8px',
+        checkboxSize: '16px',
+        joystickWidth: '100px',
+        joystickHeight: '100px',
+        colorPickerWidth: '160px',
+        colorPickerHeight: '100px',
+        monitorHeight: '60px',
+        titleBarHeight: '39px',
+    },
+    fontSizes: {
+        root: '10px',
+        label: '10px',
+        value: '10px',
+    },
+    borderWidths: {
+        root: '0px',
+        input: '1px',
+        focus: '1px',
+        hover: '1px',
+        active: '1px',
+        folder: '1px',
+    },
 };

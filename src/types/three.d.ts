@@ -1,4 +1,3 @@
-import { Object3D } from 'three';
 import { RapierRigidBody } from '@react-three/rapier';
 
 interface MeshLineGeometryProps {
@@ -31,13 +30,6 @@ export interface ExtendedRigidBody extends RapierRigidBody {
 
 export interface RigidBodyRef {
     current: ExtendedRigidBody | null;
-}
-
-export interface ThemeConfig {
-    colors: {
-        accent: string;
-        elevation1: string;
-    };
 }
 
 export interface BandProps {
